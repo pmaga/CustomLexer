@@ -1,0 +1,1 @@
+dotnet run --project ./CustomTokenizer.Api/CustomTokenizer.Api.csproj
