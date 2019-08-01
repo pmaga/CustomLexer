@@ -1,1 +1,1 @@
-dotnet run --project ./CustomTokenizer.Api/CustomTokenizer.Api.csproj
+dotnet run --project ./CustomLexer.Api/CustomLexer.Api.csproj

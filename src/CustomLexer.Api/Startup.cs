@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace CustomTokenizer.Api
+namespace CustomLexer.Api
 {
     public class Startup
     {
@@ -38,6 +38,8 @@ namespace CustomTokenizer.Api
                 app.UseHsts();
             }
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseMvc();
         }

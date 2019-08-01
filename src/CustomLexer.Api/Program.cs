@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace CustomTokenizer.Api
+namespace CustomLexer.Api
 {
     public class Program
     {
