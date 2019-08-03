@@ -66,9 +66,15 @@ By running test on this data set, we get the following results:
 
 It's easy to see how the complexity of output data grows exponentially with large files and the maximum value for N parameter.
 
+**N(1)**
+
 ![N1](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img_n1.png)
 
+**N(2)**
+
 ![N2](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img_n2.png)
+
+**N(3)**
 
 ![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img_n3.png)
 
