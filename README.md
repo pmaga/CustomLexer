@@ -66,11 +66,11 @@ By running test on this data set, we get the following results:
 
 It's easy to see how the complexity of output data grows exponentially with large files and the maximum value for N parameter.
 
-![N1](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/n1.png)
+![N1](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img/n1.png)
 
-![N2](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/n2.png)
+![N2](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img/n2.png)
 
-![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/n3.png)
+![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img/n3.png)
 
 
 
@@ -80,7 +80,7 @@ Considering the initial analysis, I decided to use the simple Azure Table Storag
 
 The data are partitioned based on the operation id that is generated for each request. In addition, statistics for specific strings are identified using Row Key. 
 
-![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/tablestorage.png)
+![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img/tablestorage.png)
 
 The current solution definitely requires improvements::
 
@@ -95,7 +95,7 @@ Based on the first index, we can iterate through all tokens in the aggregate of 
 
 Then, having all the data about given string, we can put it to the dictionary in which duplicates are aggregated.
 
-![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/algorithm.png)
+![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img/algorithm.png)
 
 The algorithm can be modified in many ways depending on the requirements. Having them we can try to set the perfect balance between such characteristics:
 * speed
