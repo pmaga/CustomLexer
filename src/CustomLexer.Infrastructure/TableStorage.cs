@@ -17,7 +17,7 @@ namespace CustomLexer.Infrastructure
             _client = storageAccount.CreateCloudTableClient();
         }
 
-        public async Task<IEnumerable<T>> AddManyAsync<T>(string tableName, IEnumerable<T> entities) 
+        public async Task AddManyAsync<T>(string tableName, IEnumerable<T> entities) 
             where T : class, ITableEntity, new()
         {
             var table = _client.GetTableReference(tableName);
@@ -37,9 +37,7 @@ namespace CustomLexer.Infrastructure
                 tasks.Add(table.ExecuteBatchAsync(operation));
             }
 
-            var results = await Task.WhenAll(tasks);
-
-            return results.SelectMany(tableResults => tableResults, (_, tableResult) => tableResult.Result as T);
+            await Task.WhenAll(tasks);
         }
 
         private void HydrateBatchOperation<T>(TableBatchOperation operation, List<T> entities)

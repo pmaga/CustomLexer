@@ -6,7 +6,7 @@ namespace CustomLexer.Infrastructure
 {
     public interface ITableStorage
     {
-        Task<IEnumerable<T>> AddManyAsync<T>(string tableName, IEnumerable<T> entities) 
+        Task AddManyAsync<T>(string tableName, IEnumerable<T> entities) 
             where T : class, ITableEntity, new();
     }
 }
