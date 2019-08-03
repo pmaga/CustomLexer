@@ -68,7 +68,7 @@ namespace CustomLexer
                     statistics.IncrementEndCount();
                 }
 
-                if (char.IsUpper(tokens[i].Value[0]))
+                if (char.IsUpper(tokens[stringIndex[i]].Value[0]))
                 {
                     statistics.IncrementUpperCount();
                 } 

@@ -23,9 +23,11 @@ To run benchmark, go to directory: `./tests/CustomLexer.Benchmark` and  run the 
 
 
 
-#### Data partitioning strategy
+## Preliminary analysis
 
-The application is designed to support the lexical analysis of files with a maximum size of 10MB. This means that the amount of output data can be quite large, so that they must be stored in an optimal manner.
+The application is designed to support the lexical analysis of files with a maximum size of 10MB. This means that the amount of output data can be quite large, so that they must be stored in an optimal manner. The following brief analysis shows more or less what we can expect.
+
+The number of characters can be easily counted:
 
 *10 MB = 10485760 bytes = 10485760 characters*
 
@@ -45,8 +47,6 @@ For the maximum text size, we can therefore expect about 1693983 words. Of cours
 | 2    | Moderate        | Medium      |
 | 3    | Low             | High        |
 
-
-
 #### Test data
 
 For a more meaningful test I used publicly available text from this [source](https://norvig.com/big.txt). 
@@ -64,7 +64,7 @@ By running test on this data set, we get the following results:
 | 2    | 6,5 Mb     | 388039                   | 8,2 MB           |
 | 3    | 6,5 Mb     | 828248                   | 21,1 MB          |
 
-
+It's easy to see how the complexity of output data grows exponentially with large files and the maximum value for N parameter.
 
 ![N1](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/n1.png)
 
@@ -74,7 +74,35 @@ By running test on this data set, we get the following results:
 
 
 
+#### Data partitioning strategy
 
+Considering the initial analysis, I decided to use the simple Azure Table Storage database. This solution is simple, cheap, fast and designed for handling a large amount of semi-structured data.
 
+The data are partitioned based on the operation id that is generated for each request. In addition, statistics for specific strings are identified using Row Key. 
 
+![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/tablestorage.png)
 
+The current solution definitely requires improvements::
+
+* the maximum key size is 1KB. This has a real effect on the size of the words that create it. It may seem that 1024 characters are a lot for 3 words (N-3), but the [longest word in English](https://en.wikipedia.org/wiki/Longest_word_in_English) consists of 189819 characters :)
+* performance of batch operations must be boosted, at the moment it can insert s15k items / second.
+
+#### Algorithm
+
+The prepared algorithm is quite simple. In the first phase, it divides the string into two groups. The first one contains texts and numbers, the second one contains punctuation marks that end the sentence. Then, two indexes are prepared, which store pointers to specific tokens.
+
+Based on the first index, we can iterate through all tokens in the aggregate of the instance. And based on the second index, we can check whether the preceding or following token is the end of sentence.
+
+Then, having all the data about given string, we can put it to the dictionary in which duplicates are aggregated.
+
+![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/algorithm.png)
+
+The algorithm can be modified in many ways depending on the requirements. Having them we can try to set the perfect balance between such characteristics:
+* speed
+* efficiency
+* readability
+* CPU / memory usage
+
+#### Benchmark
+
+TODO

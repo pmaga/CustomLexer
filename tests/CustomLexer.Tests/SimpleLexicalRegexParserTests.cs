@@ -1,3 +1,4 @@
+using System.Linq;
 using Shouldly;
 using Xunit;
 
@@ -48,6 +49,17 @@ namespace CustomLexer.Tests
             AssertTermStatistics(results[2], "kota czy kota", 1, 0, 0, 0);
             AssertTermStatistics(results[3], "czy kota ma", 1, 1, 0, 0);
             AssertTermStatistics(results[4], "kota ma ala", 1, 0, 1, 0);
+        }
+
+        [Fact]
+        public void Parse_CountsAllUpperCaseCases()
+        {
+            var input = "Lorem Ipsum? Is. Simply Lorem, ipsum Dummy text of The Lorem ipsum. Printing";
+            var lexer = new SimpleLexicalRegexParser(new RegexTokenizer());
+            
+            var results = lexer.Parse(input, 2);
+            var loremIpsumSegment = results.First(r => r.Term == "lorem ipsum");
+            AssertTermStatistics(loremIpsumSegment, "lorem ipsum", 3, 1, 2, 3);
         }
 
         private void AssertTermStatistics(LexicalAnalysisResult result, string expectedTerm, int expectedTermCount, 

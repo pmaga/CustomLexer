@@ -16,6 +16,11 @@ namespace CustomLexer.Infrastructure.Entities
 
         public static StatisticsEntity CreateFrom(LexicalAnalysisResult result, Guid operationId)
         {
+            if (result.Term.Length > 1024)
+            {
+                throw new ArgumentException("Term exceeds the maximum allowed length of 1024 characters.", nameof(result.Term));
+            }
+
             return new StatisticsEntity
             {
                 PartitionKey = operationId.ToString("N"),

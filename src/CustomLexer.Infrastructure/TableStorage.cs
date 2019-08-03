@@ -8,7 +8,7 @@ namespace CustomLexer.Infrastructure
 {
     public class TableStorage : ITableStorage
     {
-        private const int BatchSize = 80;
+        private const int BatchSize = 100;
         private readonly CloudTableClient _client;
 
         public TableStorage(string connectionString)
@@ -23,21 +23,31 @@ namespace CustomLexer.Infrastructure
             var table = _client.GetTableReference(tableName);
             await table.CreateIfNotExistsAsync();
 
-            var tasks = new List<Task<IList<TableResult>>>();
-
-            var entitiesOffset = 0;
-            while (entitiesOffset < entities?.Count())
+            var taskCount = 0;
+            var taskThreshold = 200;
+            var batchTasks = new List<Task<IList<TableResult>>>();
+            
+            for (var i = 0; i < entities.Count(); i += BatchSize)
             {
-                var entitiesToAdd = entities.Skip(entitiesOffset).Take(BatchSize).ToList();
-                entitiesOffset += entitiesToAdd.Count;
-
-                var operation = new TableBatchOperation();
-                HydrateBatchOperation(operation, entitiesToAdd);
-
-                tasks.Add(table.ExecuteBatchAsync(operation));
+                taskCount++;
+                var batchItems = entities.Skip(i)
+                                        .Take(BatchSize)
+                                        .ToList();
+            
+                var batch = new TableBatchOperation();
+                HydrateBatchOperation(batch, batchItems);
+            
+                var task = table.ExecuteBatchAsync(batch);
+                batchTasks.Add(task);
+            
+                if (taskCount >= taskThreshold)
+                {
+                    await Task.WhenAll(batchTasks);
+                    taskCount = 0;
+                }
             }
-
-            await Task.WhenAll(tasks);
+            
+            await Task.WhenAll(batchTasks);
         }
 
         private void HydrateBatchOperation<T>(TableBatchOperation operation, List<T> entities)

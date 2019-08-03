@@ -5,7 +5,13 @@ namespace CustomLexer
 {
     public class RegexTokenizer : ITokenizer
     {
-        private const string Pattern = "(?<String>[A-Za-z0-9]+)|(?<EndOfLineMark>[.?!]+)";
+        private const string SentenceCharacters = "A-Za-z0-9";
+
+        private const string EndOfSentenceCharacters = ".?!";
+
+        // Special characters that are a part of the word, e.g. semi-structured
+        private const string SpecialCharacters = "-()";
+        private readonly string Pattern = $"(?<String>[{SentenceCharacters}{SpecialCharacters}]+)|(?<EndOfLineMark>[{EndOfSentenceCharacters}]+)";
 
         public Token[] Tokenize(string input)
         {

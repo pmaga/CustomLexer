@@ -58,6 +58,33 @@ namespace CustomLexer.Tests
             AssertToken(tokens[7], "?", TokenType.EndOfLineMark);
         }
 
+        [Fact]
+        public void Tokenize_IncludesSpecialCharacters()
+        {
+            var input = "Semi-structured (data)";
+            var tokenizer = new RegexTokenizer();
+            
+            var tokens = tokenizer.Tokenize(input).ToList();
+
+            tokens.Count.ShouldBe(2);
+            AssertToken(tokens[0], "Semi-structured", TokenType.String);
+            AssertToken(tokens[1], "(data)", TokenType.String);
+        }
+
+        [Fact]
+        public void Tokenize_IgnoresSomePunctuationMarks()
+        {
+            var input = "The, quick: brown; fox";
+            var tokenizer = new RegexTokenizer();
+            
+            var tokens = tokenizer.Tokenize(input).ToList();
+
+            tokens.Count.ShouldBe(4);
+            AssertToken(tokens[0], "The", TokenType.String);
+            AssertToken(tokens[1], "quick", TokenType.String);
+            AssertToken(tokens[2], "brown", TokenType.String);
+            AssertToken(tokens[3], "fox", TokenType.String);
+        }
         private void AssertToken(Token token, string expectedValue, TokenType expectedType)
         {
             token.ShouldSatisfyAllConditions(() => token.Type.ShouldBe(expectedType),
