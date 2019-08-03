@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CustomLexer.Api.Configuration;
+using CustomLexer.Api.Services;
+using CustomLexer.Infrastructure;
+using CustomLexer.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.WindowsAzure.Storage;
 
 namespace CustomLexer.Api
 {
@@ -25,6 +24,21 @@ namespace CustomLexer.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            var fileConfigurationSection = Configuration.GetSection(nameof(FileConfiguration));
+            services.Configure<FileConfiguration>(fileConfigurationSection);
+            services.Configure<FormOptions>(options =>
+            {
+                FileConfiguration fileConfiguration = new FileConfiguration();
+                fileConfigurationSection.Bind(fileConfiguration);
+                options.MultipartBodyLengthLimit = fileConfiguration.MaxSizeInBytes;
+            });
+            services.AddTransient<ILexicalAnalysisService, LexicalAnalysisService>();
+            services.AddSingleton<ILexicalParser, SimpleLexicalRegexParser>();
+
+            services.AddTransient<ITableStorage, TableStorage>();
+            services.AddTransient<IStatisticsRepository, StatisticsRepository>();
+
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
