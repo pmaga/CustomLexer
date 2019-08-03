@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using CustomLexer.Api.Configuration;
@@ -51,12 +53,32 @@ namespace CustomLexer.Api.Controllers
 
             if (model.GetResult)
             {
-                var tsvFile = _lexicalAnalysisService.AnalyzeAndGetResultAsTsv(fileContent, model.NumberOfWordsInGroup);
-                return Ok(tsvFile);
+                var results = _lexicalAnalysisService.AnalyzeAndGetResults(fileContent, model.NumberOfWordsInGroup);
+                return ToFileStream(results);
             }
 
-            _lexicalAnalysisService.Analyze(fileContent, model.NumberOfWordsInGroup);
+            await _lexicalAnalysisService.AnalyzeAndStoreResultsAsync(fileContent, model.NumberOfWordsInGroup);
             return Ok();
+        }
+
+        private FileStreamResult ToFileStream(List<LexicalAnalysisResult> results)
+        {
+            var delimeter = "\t";
+            var memoryStream = new MemoryStream();
+            var writer = new StreamWriter(memoryStream);
+
+            var header = string.Join(delimeter, nameof(LexicalAnalysisResult.Term), nameof(LexicalAnalysisResult.TermCount), 
+                nameof(LexicalAnalysisResult.BeginCount), nameof(LexicalAnalysisResult.EndCount), nameof(LexicalAnalysisResult.UpperCount));
+            writer.WriteLine(header);
+            foreach (var result in results)
+            {
+                var line = string.Join(delimeter, result.Term, result.TermCount, result.BeginCount, result.EndCount, result.UpperCount);
+                writer.WriteLine(line);
+            }
+            writer.Flush();
+            
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            return File(memoryStream, "application/octet-stream", $"results-{DateTime.UtcNow.ToFileTimeUtc()}.tsv");
         }
     }
 

@@ -35,10 +35,11 @@ namespace CustomLexer.Api
             });
             services.AddTransient<ILexicalAnalysisService, LexicalAnalysisService>();
             services.AddSingleton<ILexicalParser, SimpleLexicalRegexParser>();
+            services.AddSingleton<ITokenizer, RegexTokenizer>();
 
-            services.AddTransient<ITableStorage, TableStorage>();
+            var storageConnectionString = Configuration.GetValue<string>("StorageConnectionString");
+            services.AddTransient<ITableStorage>(_ => new TableStorage(storageConnectionString));
             services.AddTransient<IStatisticsRepository, StatisticsRepository>();
-
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

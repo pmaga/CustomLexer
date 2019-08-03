@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,13 +18,23 @@ namespace CustomLexer
             var results = new Dictionary<string, LexicalAnalysisResult>();
 
             var tokens = _tokenizer.Tokenize(input);
+            var stringIndex = new List<int>();
+            var endOfLineMarksIndex = new HashSet<int>();
 
-            var stringIndex = tokens.Where(token => token.Type == TokenType.String).Select(token => Array.IndexOf(tokens, token)).ToList();
-            var endOfLineMarksIndex = tokens.Where(token => token.Type == TokenType.EndOfLineMark).Select(token => Array.IndexOf(tokens, token)).ToList();
+            for (var i = 0; i < tokens.Length; i++)
+            {
+                var token = tokens[i];
+                if (token.Type == TokenType.String) {
+                    stringIndex.Add(i);
+                } else {
+                    endOfLineMarksIndex.Add(i);
+                }
+            }
 
             for (var i = 0; i < stringIndex.Count; i++)
             {
-                if (i + numberOfWordsInGroup > stringIndex.Count)
+                var lastPotentialIndexInTermGroup = i + numberOfWordsInGroup;
+                if (lastPotentialIndexInTermGroup > stringIndex.Count)
                 {
                     break;
                 }
@@ -46,18 +55,15 @@ namespace CustomLexer
 
                 statistics.IncrementTermCount();
 
-                if (termIndices[0] == 0)
-                {
-                    statistics.IncrementBeginCount();
-                } else if (endOfLineMarksIndex.Contains(termIndices[0] - 1))
+                var previousTermIndex = stringIndex[i] - 1;
+                if (endOfLineMarksIndex.Contains(previousTermIndex) || stringIndex[i] == 0)
                 { 
                     statistics.IncrementBeginCount();
-                }
+                } 
 
-                if (termIndices.Last() == stringIndex.Last())
-                {
-                    statistics.IncrementEndCount();
-                } else if (endOfLineMarksIndex.Contains(termIndices.Last() + 1))
+                var indexOfTheLastTokenInGroup = GetIndexOfTheLastTokenInGroup(stringIndex, i, numberOfWordsInGroup);
+                var startIndexOfTokenInNextPossibleGroup = GetStartIndexOfTokenInNextPossibleGroup(stringIndex, i, numberOfWordsInGroup);
+                if (endOfLineMarksIndex.Contains(startIndexOfTokenInNextPossibleGroup) || indexOfTheLastTokenInGroup == stringIndex.Last())
                 {
                     statistics.IncrementEndCount();
                 }
@@ -70,5 +76,9 @@ namespace CustomLexer
 
             return results.Values.ToList();
         }
+        private int GetStartIndexOfTokenInNextPossibleGroup(List<int> index, int current, int numberOfWordsInGroup) => 
+            index[current] + numberOfWordsInGroup;
+        private int GetIndexOfTheLastTokenInGroup(List<int> index, int current, int numberOfWordsInGroup) =>
+            index[current + numberOfWordsInGroup - 1];
     }
 }

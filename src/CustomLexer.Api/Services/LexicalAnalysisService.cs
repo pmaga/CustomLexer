@@ -1,31 +1,41 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using CustomLexer.Infrastructure.Repositories;
 
 namespace CustomLexer.Api.Services
 {
     public class LexicalAnalysisService : ILexicalAnalysisService
     {
         private readonly ILexicalParser _parser;
+        private readonly IStatisticsRepository _repository;
 
-        public LexicalAnalysisService(ILexicalParser parser)
+        public LexicalAnalysisService(ILexicalParser parser, IStatisticsRepository repository)
         {
             _parser = parser;
+            _repository = repository;
         }
 
-        public void Analyze(string input, int numberOfWordsInGroup)
+        public async Task AnalyzeAndStoreResultsAsync(string input, int numberOfWordsInGroup)
         {
             ValidateInput(input);
             ValidateNumberOfWordsInGroup(numberOfWordsInGroup);
     
             var result = _parser.Parse(input, numberOfWordsInGroup);
+
+            var operationId = Guid.NewGuid();
+            await _repository.AddManyAsync(operationId, result);
         }
 
-        public TsvFile AnalyzeAndGetResultAsTsv(string input, int numberOfWordsInGroup)
+        public List<LexicalAnalysisResult> AnalyzeAndGetResults(string input, int numberOfWordsInGroup)
         {
             ValidateInput(input);
             ValidateNumberOfWordsInGroup(numberOfWordsInGroup);
 
             var result = _parser.Parse(input, numberOfWordsInGroup);
-            throw new NotImplementedException();
+
+            return result.ToList();
         }
 
         private void ValidateInput(string input)

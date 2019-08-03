@@ -5,10 +5,10 @@ namespace CustomLexer.Infrastructure.Entities
 {
     public class StatisticsEntity : TableEntity
     {
-        public int TermCount { get; private set; }
-        public int BeginCount { get; private set; }
-        public int EndCount { get; private set; }
-        public int UpperCount { get; private set; }
+        public int TermCount { get; set; }
+        public int BeginCount { get; set; }
+        public int EndCount { get; set; }
+        public int UpperCount { get; set; }
 
         public StatisticsEntity()
         {

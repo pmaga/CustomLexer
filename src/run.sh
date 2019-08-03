@@ -1,1 +1,0 @@
-dotnet run --project ./CustomLexer.Api/CustomLexer.Api.csproj
