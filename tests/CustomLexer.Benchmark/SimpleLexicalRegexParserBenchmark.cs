@@ -1,8 +1,8 @@
+using System;
 using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using CustomLexer.ByMatchesAndIndices;
 
 namespace CustomLexer.Benchmark
 {
@@ -11,9 +11,8 @@ namespace CustomLexer.Benchmark
     [IterationCount(3)]
     public class SimpleLexicalRegexParserBenchmark
     {
-        private SimpleLexicalRegexParser _parser;
-        private string _lowVariety10MBFileContent;
-
+        private ILexer _lexer;
+        private string _content;
 
         [Params(1)]
         public int NumberOfWordsInGroup;
@@ -21,21 +20,28 @@ namespace CustomLexer.Benchmark
         [GlobalSetup]
         public void Setup()
         {
-            _parser = new SimpleLexicalRegexParser(new RegexTokenizer());
+            _lexer = new LexerByRegexMatchesAndIndices(new RegexTokenizer());
 
-            _lowVariety10MBFileContent = GetFileContentAsync("input_10MB_lowvariety.txt)").GetAwaiter().GetResult();
+            _content = ReadManifestData("CustomLexer.Benchmark/Resources/sherlock.txt");
         }
 
         [Benchmark]
-        public void LowVariety10MBFile() => _parser.Parse(_lowVariety10MBFileContent, NumberOfWordsInGroup);
+        public void Sherlock() => _lexer.Parse(_content, NumberOfWordsInGroup);
 
-        private async Task<string> GetFileContentAsync(string fileName)
+        public static string ReadManifestData(string resourceName)
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceStream = assembly.GetManifestResourceStream($"CustomLexer.Benchmark.Resources.{fileName}");
-            using (var reader = new StreamReader(resourceStream, Encoding.UTF8))
+            var assembly = typeof(SimpleLexicalRegexParserBenchmark).GetTypeInfo().Assembly;
+                resourceName = resourceName.Replace("/", ".");
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
             {
-                return await reader.ReadToEndAsync();
+                if (stream == null)
+                {
+                    throw new InvalidOperationException("Could not load manifest resource stream.");
+                }
+                using (var reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
             }
         }
     }

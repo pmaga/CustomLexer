@@ -1,14 +1,15 @@
 ﻿using CustomLexer.Api.Configuration;
 using CustomLexer.Api.Services;
+using CustomLexer.ByMatchesAndIndices;
 using CustomLexer.Infrastructure;
 using CustomLexer.Infrastructure.Repositories;
+using CustomLexer.Lexers.ByRegexMatch;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.WindowsAzure.Storage;
 
 namespace CustomLexer.Api
 {
@@ -34,8 +35,9 @@ namespace CustomLexer.Api
                 options.MultipartBodyLengthLimit = fileConfiguration.MaxSizeInBytes;
             });
             services.AddTransient<ILexicalAnalysisService, LexicalAnalysisService>();
-            services.AddSingleton<ILexicalParser, SimpleLexicalRegexParser>();
-            services.AddSingleton<ITokenizer, RegexTokenizer>();
+            services.AddTransient<ILexer, LexerByRegexMatch>();
+            //services.AddSingleton<ILexer, LexerByRegexMatchesAndIndices>();
+            //services.AddSingleton<ITokenizer, RegexTokenizer>();
 
             var storageConnectionString = Configuration.GetValue<string>("StorageConnectionString");
             services.AddTransient<ITableStorage>(_ => new TableStorage(storageConnectionString));

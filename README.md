@@ -58,11 +58,11 @@ by Sir Arthur Conan Doyle
 
 By running test on this data set, we get the following results:
 
-| N    | Input size | Number of unique records | Output size (Mb) |
-| ---- | ---------- | ------------------------ | ---------------- |
-| 1    | 6,5 Mb     | 30436                    | 516 KB           |
-| 2    | 6,5 Mb     | 388039                   | 8,2 MB           |
-| 3    | 6,5 Mb     | 828248                   | 21,1 MB          |
+| N    | Input size | Number of unique records | Output size |
+| ---- | ---------- | ------------------------ | ----------- |
+| 1    | 6,5 Mb     | 30436                    | 516 KB      |
+| 2    | 6,5 Mb     | 388039                   | 8,2 MB      |
+| 3    | 6,5 Mb     | 828248                   | 21,1 MB     |
 
 It's easy to see how the complexity of output data grows exponentially with large files and the maximum value for N parameter.
 

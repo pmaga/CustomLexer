@@ -18,4 +18,8 @@
     <ProjectReference Include="..\..\src\CustomLexer\CustomLexer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\sherlock.txt" />
+  </ItemGroup>
+
 </Project>

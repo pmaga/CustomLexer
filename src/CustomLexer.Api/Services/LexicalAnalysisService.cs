@@ -8,12 +8,12 @@ namespace CustomLexer.Api.Services
 {
     public class LexicalAnalysisService : ILexicalAnalysisService
     {
-        private readonly ILexicalParser _parser;
+        private readonly ILexer _lexer;
         private readonly IStatisticsRepository _repository;
 
-        public LexicalAnalysisService(ILexicalParser parser, IStatisticsRepository repository)
+        public LexicalAnalysisService(ILexer lexer, IStatisticsRepository repository)
         {
-            _parser = parser;
+            _lexer = lexer;
             _repository = repository;
         }
 
@@ -22,7 +22,7 @@ namespace CustomLexer.Api.Services
             ValidateInput(input);
             ValidateNumberOfWordsInGroup(numberOfWordsInGroup);
     
-            var result = _parser.Parse(input, numberOfWordsInGroup);
+            var result = _lexer.Parse(input, numberOfWordsInGroup);
 
             var operationId = Guid.NewGuid();
             await _repository.AddManyAsync(operationId, result);
@@ -33,7 +33,7 @@ namespace CustomLexer.Api.Services
             ValidateInput(input);
             ValidateNumberOfWordsInGroup(numberOfWordsInGroup);
 
-            var result = _parser.Parse(input, numberOfWordsInGroup);
+            var result = _lexer.Parse(input, numberOfWordsInGroup);
 
             return result.ToList();
         }
