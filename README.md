@@ -86,14 +86,27 @@ Considering the initial analysis, I decided to use the simple Azure Table Storag
 
 The data are partitioned based on the operation id that is generated for each request. In addition, statistics for specific strings are identified using Row Key. 
 
-![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img_tablestorage.png)
+![tablestorage](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img_tablestorage.png)
 
 The current solution definitely requires improvements::
 
 * the maximum key size is 1KB. This has a real effect on the size of the words that create it. It may seem that 1024 characters are a lot for 3 words (N-3), but the [longest word in English](https://en.wikipedia.org/wiki/Longest_word_in_English) consists of 189819 characters :)
 * performance of batch operations must be boosted, at the moment it can insert s15k items / second.
 
-#### Algorithm
+#### Algorithm #1 (using Regex.Match)
+
+The algorithm is based on the gradual extraction of subsequent tokens from the input source. In each iteration, it takes tokens until it reaches a satisfactory number of string tokens (N). When the buffer is full, it performs steps like:
+
+* combines all strings into one term
+* checks the first token in the buffer and if it is a punctuation mark it increases the BeginCount flag by 1. If the token is first in the input source, it also increases the BeginCount flag by 1.
+* checks the first letter in the first text token in the buffer and if it is a capital letter, it increases the UpperCount flag by 1
+* checks the first token from the potential next group and if it is a punctuation mark it increases the EndCount flag by 1. If the group does not exist, it also increases the EndCount flag by 1..
+* adds information to the results collection and if the term is already there it increases the TermCount flag by 1
+
+
+![algorithm2](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img_algorithm2.png)
+
+#### Algorithm #2 (using Regex.Matches and indices)
 
 The prepared algorithm is quite simple. In the first phase, it divides the string into two groups. The first one contains texts and numbers, the second one contains punctuation marks that end the sentence. Then, two indexes are prepared, which store pointers to specific tokens.
 
@@ -101,7 +114,7 @@ Based on the first index, we can iterate through all tokens in the aggregate of 
 
 Then, having all the data about given string, we can put it to the dictionary in which duplicates are aggregated.
 
-![N3](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img_algorithm.png)
+![algorithm1](https://raw.githubusercontent.com/pmaga/CustomLexer/master/docs/img_algorithm.png)
 
 The algorithm can be modified in many ways depending on the requirements. Having them we can try to set the perfect balance between such characteristics:
 * speed
